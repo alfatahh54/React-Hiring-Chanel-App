@@ -5,10 +5,10 @@ import {Jumbotron} from 'react-bootstrap'
 function Home(){
     return(
             
-            <center style={{marginTop:'auto'}}>
-            <Jumbotron style={{backgroundImage:{BackgroundJumbo}, backgroundSize:'cover', marginTop:'auto' }}>
+            <center>
+            <Jumbotron style={{backgroundImage:`url('${BackgroundJumbo}')`, backgroundSize:'cover', marginTop:'auto' }}>
                  <h1 style={{marginTop:'150px'}}>Welcome!</h1>
-                <p>
+                <p style={{color:'green'}}>
                     This Site will Connect Job Seekers with Any Companies
                 </p>
             </Jumbotron>

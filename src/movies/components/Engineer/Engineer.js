@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import Card from './Card'
-import { Row, Dropdown, DropdownButton, ButtonGroup, Pagination } from 'react-bootstrap'
-
+import { Row, Dropdown, DropdownButton, ButtonGroup, Pagination, Button, CardColumns, } from 'react-bootstrap'
+import Header from '../../Header'
+import { connect } from 'react-redux'
+import { fetchEngineer } from '../../public/redux/action/Engineer'
+import Loader from 'react-loader-spinner'
 class EngineerList extends Component {
     constructor() {
         super() 
@@ -12,42 +14,51 @@ class EngineerList extends Component {
             lastPage:'',
             totalPage:'',
             currentPage:'',
-            nextPage:"",
-            prevPage:''
+            nextPage:'',
+            prevPage:'',
+            isLoading: false,
+            isError: false,
+            user: 'login'
         }
-    }  
-    getData() {
-        axios.get(`http://localhost:3000/api/v1/engineers${this.props.location.search}`)
-        .then(res => {
-            this.setState({
-                engineer : res.data.data,
-                firstPage: '/engineer'+this.props.location.search.replace('page='+res.data.current_page,'page=1'),
-                lastPage: '/engineer'+this.props.location.search.replace('page='+res.data.current_page,'page='+res.data.total_page),  
-                totalPage: res.data.total_page,
-                currentPage: res.data.current_page,
-                prevPage: res.data.prevLink,
-                nextPage: res.data.nextLink
-            })
-            console.log(this.props)
-        }).catch(err => {
-            console.log(err)
-        })
+    } 
+    getToken = (headers) =>{
+        if (headers && headers.authorization) {
+          var parted = headers.authorization.split(" ");
+            if (parted.length === 2) {
+             this.setState({
+               token: parted[1]
+             }) 
+            } else {
+             return null;
+            }
+          } else {
+           return null;
+          }
+      } 
+    fetchEngineer = (e) => {
+        const keyword = '?page=1&search='+e
+        this.props.fetch(keyword)
     }
-
+    getAll = () => {
+        const keyword = this.props.location.search
+        this.props.fetch(keyword)
+    }
     componentDidMount(){
  
-        this.getData()
+        this.getAll()
        
     }
     render() {
-        const renderEngineer = this.state.engineer.map(engineer=>{
+        const renderEngineer = this.props.engineer.engineer.map(engineer=>{
             return (
                 
                   <Card props={engineer} key={engineer.id}/>
+                
               )
         }) 
         return (
             <>
+            <Header getDataFromSearch={this.fetchEngineer} searchBar='true' user={this.state.user}/>
             <Row >
             <ButtonGroup style={{marginTop:"100px", marginBottom:'50px'}} aria-label="Basic example">
             <DropdownButton as={ButtonGroup} title="Per Page" id="bg-nested-dropdown">
@@ -65,16 +76,29 @@ class EngineerList extends Component {
             </DropdownButton>
             </ButtonGroup>
             </Row>
-            <Row className='justify-content-center'>
-                { renderEngineer}
-            </Row>
+            {this.props.engineer.isLoading ?
+                <Row className="justify-content-center">
+                <Loader type="BallTriangle" color="blue" height={80} width={80} />
+                </Row> : 
+                this.props.engineer.isError ? (
+                <Row className="justify-content-center">
+                <Button variant="outline-primary" onClick={this.getAll()}> Try Again</Button>
+                </Row>
+                ) : 
+                
+                    <CardColumns style={{columnCount: '5'}}>
+                    {renderEngineer}
+                    </CardColumns>
+                
+                }
+            
             <Row className='justify-content-center' style={{marginTop:"50px"}}>
             <Pagination>
-                <Pagination.First href={this.state.firstPage} />
-                <Pagination.Prev href={this.state.prevPage}/>
-                <Pagination.Item>{this.state.currentPage+' of '+this.state.totalPage}</Pagination.Item>
-                <Pagination.Next href={this.state.nextPage}/>
-                <Pagination.Last href={this.state.lastPage} />
+                <Pagination.First href={this.props.engineer.firstPage} />
+                <Pagination.Prev href={this.props.engineer.prevPage}/>
+                <Pagination.Item>{this.props.engineer.currentPage+' of '+this.props.engineer.totalPage}</Pagination.Item>
+                <Pagination.Next href={this.props.engineer.nextPage}/>
+                <Pagination.Last href={this.props.engineer.lastPage} />
             </Pagination>
             </Row>
             </>
@@ -82,4 +106,13 @@ class EngineerList extends Component {
     }
 }
 
-export default EngineerList
+const mapStateToProps = state => ({
+    engineer: state.engineer
+})
+
+const mapDispatchToProps = dispatch => ({
+    fetch: keyword => dispatch(fetchEngineer(keyword))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(EngineerList)
+// export default EngineerList

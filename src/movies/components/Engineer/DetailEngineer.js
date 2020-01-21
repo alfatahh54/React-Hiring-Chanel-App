@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import {Image, Col, ListGroup, Row, ButtonToolbar, Button} from 'react-bootstrap'
-import axios from 'axios'
+import { Col, Row, Table, Card, Form, Button} from 'react-bootstrap'
+import { connect } from 'react-redux'
+import { fetchEngineer, deleteEngineer } from '../../public/redux/action/Engineer'
 
 class DetailEngineer extends Component {
     constructor() {
@@ -16,66 +17,105 @@ class DetailEngineer extends Component {
             'email':''
         }
     }
-    componentDidMount= async()=>{
+    componentDidMount=()=>{
         const id = this.props.match.params.id
-        await axios.get("http://localhost:3000/api/v1/engineers?search="+id)
-        .then(res => {
-            let d = new Date(res.data.data[0].date_of_birth),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear()
-            const date = [year, month, day].join('-')
-            this.setState({
-                    'name' : res.data.data[0].name,
-                    'location': res.data.data[0].location,
-                    'skill': res.data.data[0].skill,
-                    'description': res.data.data[0].description,
+        const keyword = `?search=${id}`
+        this.props.fetch(keyword)
+    }
+
+    componentWillReceiveProps= async(props)=>{
+        const id = props.match.params.id
+        for(let i = 0; i < props.engineer.engineer.length; i++){
+            if(props.engineer.engineer[i].id===id){
+                let d = new Date(props.engineer.engineer[i].date_of_birth),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear()
+                const date = [year, month, day].join('-')
+                this.setState({
+                    'name' : props.engineer.engineer[i].name,
+                    'location': props.engineer.engineer[i].location,
+                    'skill': props.engineer.engineer[i].skill,
+                    'description': props.engineer.engineer[i].description,
                     'date_of_birth': date,
-                    'showcase': res.data.data[0].showcase,
-                    'salary': res.data.data[0].salary,
-                    'email': res.data.data[0].email
-            })
-            console.log(res.data)
-        }).catch(err => {
-            console.log(err)
-        })
+                    'showcase': props.engineer.engineer[i].showcase,
+                    'salary': props.engineer.engineer[i].salary,
+                    'email': props.engineer.engineer[i].email
+                })
+            }
+        }
+    }
+    handlerDelete=()=>{
+        const id = this.props.match.params.id
+        this.props.deleteEngineer(id)
+        this.props.history.push('/engineer?page=1')
     }
     render() {
         return (
           <>
-            <Row style={{position: 'absolute', marginTop: '100px'}}>
+            <Row style={{ marginTop: '100px'}}>
+                {console.log(this.props)}
+                <Col md={3}>
+                <Card style={{  borderRadius:'20px', backgroundImage: `url('${this.state.showcase}')`, backgroundPosition:'center', backgroundSize:'cover'}}>
+                    <Card.Body style={{height:300}}>
+                    </Card.Body>
+                </Card>
+                </Col>
                 <Col>
-                <Image width={171} height={180} alt="171x180" src="holder.js/171x180" rounded />
+                <Table striped bordered hover>
+                <tbody>
+                    <tr>
+                    <td>Name</td>
+                    <td>{this.state.name}</td>
+                    </tr>
+                    <tr>
+                    <td>Description</td>
+                    <td>{this.state.description}</td>
+                    </tr>
+                    <tr>
+                    <td>Skill</td>
+                    <td >{this.state.skill}</td>
+                    </tr>
+                    <tr>
+                    <td>Location</td>
+                    <td>{this.state.location}</td>
+                    </tr>
+                    <tr>
+                    <td>Date of Birth</td>
+                    <td>{this.state.date_of_birth}</td>
+                    </tr>
+                    <tr>
+                    <td>Salary</td>
+                    <td>{this.state.salary}</td>
+                    </tr>
+                    <tr>
+                    <td>Email</td>
+                    <td>{this.state.email}</td>
+                    </tr>
+                </tbody>
+                </Table><br/>
+                <Form.Group as={Row}>
+                    <Col sm={{offset:4}} md={1}>
+                    <Button href={'/engineer/edit/'+this.props.match.params.id} >Edit</Button>
+                    </Col>
+                    <Col bg='danger' sm='auto'>
+                    <Button onClick={this.handlerDelete} >Delete</Button>
+                    </Col>
+                </Form.Group>
                 </Col>
-                
-                <Col>
-                <ListGroup variant="flush">
-                <ListGroup.Item>Name</ListGroup.Item>
-                <ListGroup.Item>Description</ListGroup.Item>
-                <ListGroup.Item>Skill</ListGroup.Item>
-                <ListGroup.Item>Location</ListGroup.Item>
-                <ListGroup.Item>Date of Birth</ListGroup.Item>
-                <ListGroup.Item>Salary</ListGroup.Item>
-                <ListGroup.Item>Email</ListGroup.Item>
-                </ListGroup>
-                </Col>
-                <Col className='md-auto'>
-                <ListGroup variant="flush">
-                <ListGroup.Item>{this.state.name}</ListGroup.Item>
-                <ListGroup.Item>{this.state.description}</ListGroup.Item>
-                <ListGroup.Item>{this.state.skill}</ListGroup.Item>
-                <ListGroup.Item>{this.state.location}</ListGroup.Item>
-                <ListGroup.Item>{this.state.date_of_birth}</ListGroup.Item>
-                <ListGroup.Item>{this.state.salary}</ListGroup.Item>
-                <ListGroup.Item>{this.state.email}</ListGroup.Item>
-                </ListGroup>
-                </Col>
-                
             </Row> 
           </>
         )
       }
     }
     
-    export default DetailEngineer
+    const mapStateToProps = state => ({
+        engineer: state.engineer
+    })
+    const mapDispatchToProps = dispatch => ({
+        fetch: keyword => dispatch(fetchEngineer(keyword)),
+        deleteEngineer: keyword => dispatch(deleteEngineer(keyword))
+    })
+
+    export default connect(mapStateToProps, mapDispatchToProps)(DetailEngineer)
     

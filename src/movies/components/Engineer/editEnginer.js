@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {Form, Col, Button, Row} from 'react-bootstrap'
-import axios from 'axios'
 import DatePicker from 'react-date-picker';
+import { connect } from 'react-redux'
+import { editEngineer, fetchEngineer } from '../../public/redux/action/Engineer'
 
 class EditEngineer extends Component {
     constructor() {
@@ -17,25 +18,10 @@ class EditEngineer extends Component {
             'email':''
         }
     }
-    componentDidMount= async()=>{
+    componentDidMount= ()=>{
         const id = this.props.match.params.id
-        await axios.get("http://localhost:3000/api/v1/engineers?search="+id)
-        .then(res => {
-            let date = new Date(res.data.data[0].date_of_birth)
-            this.setState({
-                    'name' : res.data.data[0].name,
-                    'location': res.data.data[0].location,
-                    'skill': res.data.data[0].skill,
-                    'description': res.data.data[0].description,
-                    'date_of_birth': date,
-                    'showcase': res.data.data[0].showcase,
-                    'salary': res.data.data[0].salary,
-                    'email': res.data.data[0].email
-            })
-            console.log(res.data)
-        }).catch(err => {
-            console.log(err)
-        })
+        const keyword = `?search=${id}`
+        this.props.fetch(keyword)        
     }
     handlerChange=(e)=>{
         this.setState({[e.target.name] : e.target.value})
@@ -46,28 +32,44 @@ class EditEngineer extends Component {
     handlerDate=e =>{
         this.setState({date_of_birth:e})
     }
+    componentWillReceiveProps=(props)=>{
+        if(props.engineer.engineer.length){
+            let d = new Date(props.engineer.engineer[0].date_of_birth),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear()
+            const date = [year, month, day].join('-')
+            this.setState({
+                'name' : props.engineer.engineer[0].name,
+                'location': props.engineer.engineer[0].location,
+                'skill': props.engineer.engineer[0].skill,
+                'description': props.engineer.engineer[0].description,
+                'date_of_birth': date,
+                'showcase': props.engineer.engineer[0].showcase,
+                'salary': props.engineer.engineer[0].salary,
+                'email': props.engineer.engineer[0].email
+            })
+        }
+    }
     handlerSubmit= (e)=> {
         const id = this.props.match.params.id
-        e.preventDefault()
         let d = new Date(this.state.date_of_birth),
             month = '' + (d.getMonth() + 1),
             day = '' + d.getDate(),
             year = d.getFullYear()
-
-        const date = [year, month, day].join('/')
-
-        if (month.length < 2) month = '0' + month
-        if (day.length < 2) day = '0' + day
-        var data = new FormData();
+            const date = [year, month, day].join('-')
+        let data = new FormData();
         data.append('showcase', this.state.showcase, this.state.showcase.name);
         data.set('name', this.state.name);
         data.set('location', this.state.location);
         data.set('skill', this.state.skill);
-        data.set('description', this.state.descriptiom);
+        data.set('description', this.state.description);
         data.set('date_of_birth', date);
         data.set('salary', this.state.salary);
         data.set('email', this.state.email);
-        axios.patch(`http://localhost:3000/api/v1/engineer/${id}`, data)
+        this.props.editEngineer(id, data)
+
+        this.props.history.push('/engineer/detail/'+id)
     }
     render() {
     return (
@@ -140,15 +142,22 @@ class EditEngineer extends Component {
         </Form.Group>
         
         <Form.Group as={Row}>
-            <Col sm={{ span: 10, offset: 2 }}>
+            <Col sm={{offset:2}} >
             <Button type="submit">Edit</Button>
             </Col>
-            <Button>Delete</Button>
         </Form.Group>
         </Form> 
       </>
     )
   }
 }
+const mapStateToProps = state => ({
+    engineer: state.engineer
+})
 
-export default EditEngineer
+const mapDispatchToProps = dispatch => ({
+    fetch: keyword => dispatch(fetchEngineer(keyword)),
+    editEngineer: (id, data)=> dispatch(editEngineer(id, data))   
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditEngineer)
