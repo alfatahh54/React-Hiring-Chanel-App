@@ -8,8 +8,7 @@ export class Login extends React.Component {
 
     render(){
         return(
-        
-        <Form style={{borderColor:'#DADADA', marginTop:'200px', alignItems:'center', display: 'flex', flexDirection:'column'}}>
+        <Form style={{borderRadius: '2%',backgroundColor: '#DADADA', width: '400px', height: '450px', justifyContent: 'center', marginTop:'200px', alignItems:'center', display: 'flex', flexDirection:'column'}}>
         <h2>Login</h2>
         <Form.Group controlId="formBasicEmail" style={{ marginTop:'2em', width:'300px'}}>
             <Form.Label>Email address</Form.Label>
@@ -31,7 +30,7 @@ export class Login extends React.Component {
         </Col>
         <Col>or</Col>
         <Col>
-        <Button variant="primary" type="submit">
+        <Button variant="primary" href="/signup">
             SignUp
         </Button>
         </Col>

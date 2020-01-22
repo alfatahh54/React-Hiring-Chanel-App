@@ -10,6 +10,7 @@ import Engineer from './components/Engineer/Engineer'
 import DetailEngineer from './components/Engineer/DetailEngineer'
 import createEngineer from './components/Engineer/AddEngineer'
 import editEngineer from './components/Engineer/editEnginer'
+import Signup from "./components/Signup";
 
 function Main() {
     return(
@@ -24,6 +25,7 @@ function Main() {
             <Route exact path='/company/edit/:id' component={editCompany} />
             <Route exact path = '/company/detail/:id' component={DetailCompany}/>
             <Route path='/login' component={Login} />
+            <Route path='/signup' component={Signup} />
             <Route exact path = '/engineer/detail/:id' component={DetailEngineer}/>
         </Switch>
         </>

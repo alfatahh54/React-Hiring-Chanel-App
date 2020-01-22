@@ -1,36 +1,46 @@
 import React, { Component } from "react";
+import { Form, Button, Row, Col } from 'react-bootstrap'
 
 export default class SignUp extends Component {
-    render() {
-        return (
-            <form>
-                <h3>Sign Up</h3>
+    render(){
+        return(
+        <Form style={{borderRadius: '2%', justifyContent: 'center', backgroundColor: '#DADADA', width: '400px', height: '600px', marginTop:'150px', alignItems:'center', display: 'flex', flexDirection:'column'}}>
+        <h2>Sign Up</h2>
+        <Form.Group controlId="formBasicEmail" style={{ marginTop:'2em', width:'300px'}}>
+            <Form.Label>Email address</Form.Label>
+            <Form.Control type="email" placeholder="Enter email" />
+        </Form.Group>
 
-                <div className="form-group">
-                    <label>First name</label>
-                    <input type="text" className="form-control" placeholder="First name" />
-                </div>
-
-                <div className="form-group">
-                    <label>Last name</label>
-                    <input type="text" className="form-control" placeholder="Last name" />
-                </div>
-
-                <div className="form-group">
-                    <label>Email address</label>
-                    <input type="email" className="form-control" placeholder="Enter email" />
-                </div>
-
-                <div className="form-group">
-                    <label>Password</label>
-                    <input type="password" className="form-control" placeholder="Enter password" />
-                </div>
-
-                <button type="submit" className="btn btn-primary btn-block">Sign Up</button>
-                <p className="forgot-password text-right">
-                    Already registered <a href="#">sign in?</a>
-                </p>
-            </form>
-        );
+        <Form.Group controlId="formBasicPassword" style={{ width:'300px'}}>
+            <Form.Label>Password</Form.Label>
+            <Form.Control type="password" placeholder="Password" />
+        </Form.Group>
+        <Form.Group controlId="formBasicPassword" style={{ width:'300px'}}>
+            <Form.Label>Confirm Password</Form.Label>
+            <Form.Control type="password" placeholder="Password" />
+        </Form.Group>
+        <Form.Group controlId="exampleForm.ControlSelect1" style={{ width:'300px'}}>
+            <Form.Label>Role</Form.Label>
+            <Form.Control as="select">
+            <option>--Choose Role--</option>
+            <option>Engineer</option>
+            <option>Company</option>
+            </Form.Control>
+        </Form.Group>
+        <Row>
+        <Col>
+        <Button variant="primary" type="submit">
+            Signup
+        </Button>
+        </Col>
+        <Col>or</Col>
+        <Col>
+        <Button variant="primary" href="/login">
+            Login
+        </Button>
+        </Col>
+        </Row>
+        </Form>
+        )
     }
 }
